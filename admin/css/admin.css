@@ -1,0 +1,87 @@
+body 
+{
+background-color: #60BFBF;
+}
+
+label
+{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+text-align: left;
+margin-right: 0.5em;
+color: #567A7A;
+}
+
+input
+{
+font-family: Arial, Helvetica, sans-serif;
+font-size: 11px;
+text-align: right;
+margin-top: 2px;
+margin-bottom: 2px;
+color: #567A7A;
+background: #CFE6E6;
+border: 1px solid #598080
+}
+
+select
+{
+font-family: Arial, Helvetica, sans-serif;
+font-size: 11px;
+text-align: right;
+color: #567A7A;
+background: #CFE6E6;
+border: 1px solid #598080
+}
+
+.submit input
+{
+font-family:Arial, Helvetica, sans-serif;
+font-size: 12px;
+color: #567A7A;
+background: #CFE6E6;
+border: 1px solid #598080
+}
+
+form#editForm fieldset
+{
+border: 1px solid #598080;
+width: 60em;
+}
+
+form#loginForm fieldset
+{
+border: 1px solid #598080;
+width: 19em;
+text-align: right;
+}
+
+legend
+{
+font-family:Arial, Helvetica, sans-serif;
+font-size:14px;
+color: #567A7A;
+background: #CFE6E6;
+border: 1px solid #598080;
+padding: 2px 6px
+}
+
+form#editForm .fields
+{
+float: left;
+width: 19em;
+padding-right: 1em;
+}
+
+form#loginForm .fields
+{
+width: 19em;
+padding-right: 1em;
+}
+
+.notice
+{
+font-family:Arial, Helvetica, sans-serif;
+font-size:12px;
+color: #567A7A;
+}

@@ -1,0 +1,244 @@
+<?php
+class MySQL {
+	
+	//-------- Constructor Method
+	function __construct() {
+		$this->link = mysql_connect('', 'dwuser', 'dwpass');
+		if(!$this->link) throw new MySQLException(mysql_errno());
+		if(!mysql_select_db('decades_web')) throw new MySQLException('Could not select database.');
+	}
+	
+	//-------- Accessor Methods
+	function __set($name, $value) {
+		$this->elem[$name] = $value;
+	}
+	
+	function __get($name) {
+		if(!isset($this->elem[$name])) throw new PropertyException($name.' is an invalid property for this object');
+		$r = $this->elem[$name];
+		return $r;
+	}
+	
+	//-------- Other Methods
+	function load() {
+		$query = 'SELECT * FROM `'.$this->elem['table'].'` WHERE ';
+		$where = '';
+		foreach( $this->elem as $key=>$value ) {
+			if($key == 'table') continue;
+			if($value == 'null') {
+				$where .= ' AND `'.$key.'` IS NULL';
+			} else {
+				$where .= ' AND `'.$key.'`=\''.$value.'\'';
+			}
+		}
+		$query .= substr($where, 5);
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+		   $r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	function loadAll() {
+		$query = 'SELECT * FROM `'.$this->elem['table'].'`';
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+			$r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	function loadAndOrder($order) {
+		$query = 'SELECT * FROM `'.$this->elem['table'].'` WHERE ';
+		foreach( $this->elem as $key=>$value ) {
+			if($key == 'table') continue;
+			if($value == 'null') {
+				$where .= ' AND `'.$key.'` IS NULL';
+			} else {
+				$where .= ' AND `'.$key.'`=\''.$value.'\'';
+			}
+		}
+		$query .= substr($where, 5);
+		$query .= ' ORDER BY `'.$order.'`';
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+		   $r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	function getCreationDate() {
+		$query = 'SELECT `creation_date` FROM `'.$this->elem['table'].'` WHERE `id`=\''.$this->elem['id'].'\'';
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+		   $r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	function getLastUpdated() {
+		$query = 'SELECT `last_updated` FROM `'.$this->elem['table'].'` WHERE `id`=\''.$this->elem['id'].'\'';
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+		   $r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	function save() {
+		if( $this->elem['id'] != -1 ) {
+			$query = 'UPDATE `'.$this->elem['table'].'` SET ';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'id') continue;
+				if($key == 'table') continue;
+				$updates .= ', `'.$key.'` = \''.$value.'\'';
+			}
+			$query .= substr($updates, 2);
+			$query .= ' WHERE `id` = \''.$this->elem['id'].'\'';
+			
+		} else {
+			$query = 'INSERT INTO `'.$this->elem['table'].'` (';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'table') continue;
+				if($key == 'id') continue;
+				$columns .= ', `'.$key.'`';
+			}
+			$query .= substr($columns, 2);
+			$query .= ') VALUES (';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'table') continue;
+				if($key == 'id') continue;
+				$values .= ', \''.$value.'\'';
+			}
+			$query .= substr($values, 2);
+			$query .= ')';
+		}
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		return true;
+	}
+	
+	function saveWithDates() {
+		if( $this->elem['id'] != -1 ) {
+			$query = 'UPDATE `'.$this->elem['table'].'` SET ';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'id') continue;
+				if($key == 'table') continue;
+				$updates .= ', `'.$key.'` = \''.$value.'\'';
+			}
+			$updates .= ', `last_updated` = \''.time().'\'';
+			$query .= substr($updates, 2);
+			$query .= ' WHERE `id` = \''.$this->elem['id'].'\'';
+		} else {
+			$query = 'INSERT INTO `'.$this->elem['table'].'` (';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'table') continue;
+				if($key == 'id') continue;
+				$columns .= ', `'.$key.'`';
+			}
+			$columns .= ', `creation_date`';
+			$query .= substr($columns, 2);
+			$query .= ') VALUES (';
+			foreach( $this->elem as $key=>$value ) {
+				if($key == 'table') continue;
+				if($key == 'id') continue;
+				$values .= ', \''.$value.'\'';
+			}
+			$values .= ', \''.time().'\'';
+			$query .= substr($values, 2);
+			$query .= ')';
+		}
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		return true;
+	}
+	
+	function getLastInsertId() {
+		$id = mysql_insert_id();
+		return $id;
+	}
+	
+	function remove() {
+		$query = 'DELETE FROM `'.$this->elem['table'].'` WHERE ';
+		foreach( $this->elem as $key=>$value ) {
+			if($key == 'table') continue;
+			$where .= ' AND `'.$key.'`=\''.$value.'\'';
+		}
+		$query .= substr($where, 5);
+		$result = mysql_query($query);
+		if(!$result) throw new MySQLException(mysql_errno());
+		
+		return true;
+	}
+	
+	function disable() {
+		$query = 'UPDATE `'.$this->elem['table'].'` SET `active` = \'0\', `last_updated` = \''.time().'\' WHERE `id` = \''.$this->elem['id'].'\'';
+		$result = mysql_query($query);
+		if(!result) throw new MySQLException(mysql_errno());
+		
+		return true;
+	}
+	
+	function customQuery($str) {
+		$query = $str;
+		$result = mysql_query($query);
+		if(!result) throw new MySQLException(mysql_errno());
+		
+		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+			$r[] = $row;
+		}
+		
+		mysql_free_result($result);
+		
+		if( isset($r) ) return $r;
+		
+		return false;
+	}
+	
+	//-------- Destructor Method
+	function __destruct() {
+		mysql_close($this->link);
+	}
+	
+	//-------- Class Variables
+	private $link = null;
+	private $elem = array();
+}
+?>
